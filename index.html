@@ -1,0 +1,124 @@
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>图片背景</title>
+<style type="text/css">
+body{
+    margin:0;
+    padding:0;
+}
+
+.ss{
+    width:100px;
+    height:100px;
+    background-color:red;
+    opacity:0.3;
+    filter:alpha(opacity=30);
+    margin:20px;
+    border:2px solid black;
+
+}
+
+
+</style>
+</head>
+<body>
+    <div id="aa" class="ss"></div>
+    <div id="bb" class="ss"></div>
+    <div id="cc" class="ss"></div>
+
+
+
+
+
+<script type="text/javascript">
+
+
+//flag的判断代码过于冗长，需要修改
+function gradualMove(ele,json,fn){
+    var flag=false;    //假设属性达到目标值
+    if(ele.intervalId){
+     clearInterval(ele.intervalId);
+    }
+    
+     ele.intervalId=setInterval(function(){
+         var i=0;
+         var a=[];
+         for(var attr in json){
+         
+         var now;
+         if(attr=="opacity"){
+             now=parseFloat(getStyle(ele,attr))*100;
+         }else{
+             now=parseInt(getStyle(ele,attr));
+         }
+         var speed=(json[attr]-now)/10;
+        if(speed>0){
+             speed=Math.ceil(speed);
+        }else{
+            speed=Math.floor(speed);
+        }
+        
+        if(now !=json[attr]){
+            a[i]=false;
+            if(attr=="opacity"){
+                ele.style.opacity=(now+speed)/100;
+                ele.style.filter="alpha(opacity="+(now+speed)+")";
+            }else{
+                
+                ele.style[attr]=now+speed+"px";
+            }
+        }else{
+            a[i]=true;
+        }
+        i++;
+         }
+         if(a.length>1){
+             for(var j=0;j < a.length;j++){
+             if(a[j] && a[j+1]){
+                 flag=true;
+             }
+             }
+         }else{
+             flag=a[0];
+         }
+         
+         if(flag){
+             clearInterval(ele.intervalId);
+            if(fn){
+                 fn();
+             }
+         }
+        
+    },60)
+   function getStyle(ele,attr){
+    if(window.getComputedStyle){
+        return window.getComputedStyle(ele,null)[attr];   //非IE
+    }else{
+        return ele.currentStyle[attr];    //IE
+    }
+    } 
+}
+
+var aa=document.getElementsByClassName("ss");
+for(i=0;i<aa.length;i++){
+    aa[i].onmouseover=function(){
+    var This=this;
+    gradualMove(This,{"width":500,"height":200},function(){
+        gradualMove(This,{"opacity":100});
+    });
+   
+   }
+   aa[i].onmouseout=function(){
+    var This=this;
+    gradualMove(This,{"opacity":30},function(){
+        gradualMove(This,{"width":100,"height":100});
+    });
+   }
+}
+
+
+</script>
+
+</body>
+</html>
